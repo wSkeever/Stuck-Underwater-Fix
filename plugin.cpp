@@ -50,27 +50,32 @@ namespace StuckUnderwater {
         static constexpr size_t idx{0x9C};
     };
 
+    static void PostWaterFix() {
+        if (!g_wasUnderWater) {
+            return;
+        }
+        if (g_lastProcessTime == FLT_MIN) {
+            return;
+        }
+        auto calendar = Calendar::GetSingleton();
+        if (!calendar) {
+            return;
+        }
+        auto processTime = calendar->GetCurrentGameTime();
+        auto timescale = calendar->GetTimescale();
+        if ((processTime - g_lastProcessTime) * 86400.0f / timescale < 1.0f) {
+            return;
+        }
+        detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
+        ConsoleLog::GetSingleton()->Print("Out of water fix.");
+        g_lastProcessTime = processTime;
+        g_wasUnderWater = false;
+    }
+
     struct PlayerUpdate {
         static void thunk(RE::PlayerCharacter* a_actor, float a_deltaTime) {
+            PostWaterFix();
             func(a_actor, a_deltaTime);
-            if (!g_wasUnderWater) {
-                return;
-            }
-            if (g_lastProcessTime == FLT_MIN) {
-                return;
-            }
-            auto calendar = Calendar::GetSingleton();
-            if (!calendar) {
-                return;
-            }
-            auto processTime = calendar->GetCurrentGameTime();
-            auto timescale = calendar->GetTimescale();
-            if ((processTime - g_lastProcessTime) * 86400.0f / timescale < 1.0f) {
-                return;
-            }
-            detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
-            g_lastProcessTime = processTime;
-            g_wasUnderWater = false;
         }
         static inline REL::Relocation<decltype(thunk)> func;
         static constexpr size_t idx{0xAD};

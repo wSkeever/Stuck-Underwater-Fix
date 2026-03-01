@@ -1,6 +1,8 @@
 #include "RE/Skyrim.h"
 #include "SKSE/SKSE.h"
 using namespace RE;
+using namespace SKSE;
+using namespace REL;
 
 namespace StuckUnderwater {
     bool g_wasUnderWater = false;
@@ -9,7 +11,7 @@ namespace StuckUnderwater {
     struct detail {
         static void UpdateUnderwaterVariables(TESWaterSystem* a_manager, bool a_underWater, float a_waterHeight) {
             using func_t = decltype(&UpdateUnderwaterVariables);
-            static REL::Relocation<func_t> func{ RELOCATION_ID(31409, 32216) };
+            static Relocation<func_t> func{ RELOCATION_ID(31409, 32216) };
             func(a_manager, a_underWater, a_waterHeight);
         }
     };
@@ -50,7 +52,7 @@ namespace StuckUnderwater {
             g_wasUnderWater = underWater;
             return underWater;
         }
-        static inline REL::Relocation<decltype(thunk)> func;
+        static inline Relocation<decltype(thunk)> func;
         static constexpr size_t idx{0x9C};
     };
 
@@ -80,20 +82,20 @@ namespace StuckUnderwater {
             PostWaterFix();
             func(a_actor, a_deltaTime);
         }
-        static inline REL::Relocation<decltype(thunk)> func;
+        static inline Relocation<decltype(thunk)> func;
         static constexpr size_t idx{0xAD};
     };
 
     void InstallUnderwaterFix() {
-        REL::Relocation<uintptr_t> vtbl{PlayerCharacter::VTABLE[0]};
+        Relocation<uintptr_t> vtbl{PlayerCharacter::VTABLE[0]};
         ProcessInWater::func = vtbl.write_vfunc(ProcessInWater::idx, ProcessInWater::thunk);
         PlayerUpdate::func = vtbl.write_vfunc(PlayerUpdate::idx, PlayerUpdate::thunk);
     }
 
-    SKSEPluginLoad(const SKSE::LoadInterface* skse) {
-        SKSE::Init(skse);
-        SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* message) {
-            if (message->type == SKSE::MessagingInterface::kDataLoaded) {
+    SKSEPluginLoad(const LoadInterface* skse) {
+        Init(skse);
+        GetMessagingInterface()->RegisterListener([](MessagingInterface::Message* message) {
+            if (message->type == MessagingInterface::kDataLoaded) {
                 InstallUnderwaterFix();
             }
         });

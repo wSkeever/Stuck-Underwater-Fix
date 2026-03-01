@@ -67,7 +67,6 @@ namespace StuckUnderwater {
             return;
         }
         detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
-        ConsoleLog::GetSingleton()->Print("Out of water fix.");
         g_lastProcessTime = processTime;
         g_wasUnderWater = false;
     }

@@ -13,13 +13,17 @@ namespace StuckUnderwater {
 
     struct ProcessInWater {
         static bool thunk(PlayerCharacter* a_actor, hkpCollidable* a_collidable, float a_waterHeight, float a_deltaTime) {
+            bool original_result = func(a_actor, a_collidable, a_waterHeight, a_deltaTime);
+            if (!original_result) {
+                return false;
+            }
             const auto camera = PlayerCamera::GetSingleton();
             if (!camera) {
-                return func(a_actor, a_collidable, a_waterHeight, a_deltaTime);
+                return original_result;
             }
             const auto cameraBody = camera->GetRuntimeData().rigidBody;
             if (!cameraBody) {
-                return func(a_actor, a_collidable, a_waterHeight, a_deltaTime);
+                return original_result;
             }
             float worldWaterHeight{ NI_INFINITY };
             hkVector4 position;

@@ -34,16 +34,20 @@ namespace StuckUnderwater {
 
     struct ProcessInWater {
         static bool thunk(PlayerCharacter* a_actor, hkpCollidable* a_collidable, float a_waterHeight, float a_deltaTime) {
-            const bool originalResult = func(a_actor, a_collidable, a_waterHeight, a_deltaTime);
-            const bool underWater = IsCameraUnderwater(a_actor, a_waterHeight, originalResult);
-            if (underWater != g_wasUnderWater) {
-                detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), underWater, a_waterHeight);
-                g_wasUnderWater = underWater;
-            }
             auto calendar = Calendar::GetSingleton();
             if (calendar) {
                 g_lastProcessTime = calendar->GetCurrentGameTime();
             }
+            const bool originalResult = func(a_actor, a_collidable, a_waterHeight, a_deltaTime);
+            if (!originalResult) {
+                g_wasUnderWater = false;
+                return false;
+            }
+            const bool underWater = IsCameraUnderwater(a_actor, a_waterHeight, originalResult);
+            if (!underWater && g_wasUnderWater) {
+                detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), underWater, a_waterHeight);
+            }
+            g_wasUnderWater = underWater;
             return underWater;
         }
         static inline REL::Relocation<decltype(thunk)> func;

@@ -75,6 +75,7 @@ namespace StuckUnderwater {
         detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
         g_lastProcessTime = processTime;
         g_wasUnderWater = false;
+        SKSE::log::info("Clearing uncleared underwater effects after exiting water.");
     }
 
     struct PlayerUpdate {
@@ -90,6 +91,7 @@ namespace StuckUnderwater {
         Relocation<uintptr_t> vtbl{PlayerCharacter::VTABLE[0]};
         ProcessInWater::func = vtbl.write_vfunc(ProcessInWater::idx, ProcessInWater::thunk);
         PlayerUpdate::func = vtbl.write_vfunc(PlayerUpdate::idx, PlayerUpdate::thunk);
+        SKSE::log::info("Data loaded, hooks installed.");
     }
 
     SKSEPluginLoad(const LoadInterface* skse) {

@@ -49,8 +49,8 @@ namespace StuckUnderwater {
             if (!underWater && g_wasUnderWater) {
                 detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), underWater, a_waterHeight);
             }
-            g_wasUnderWater = underWater;
-            return underWater;
+            g_wasUnderWater = originalResult;
+            return originalResult;
         }
         static inline Relocation<decltype(thunk)> func;
         static constexpr size_t idx{0x9C};

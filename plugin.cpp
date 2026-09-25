@@ -50,8 +50,6 @@ namespace StuckUnderwater {
             if (!underWater && g_wasUnderWater) {
                 detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), underWater, a_waterHeight);
             }
-            ConsoleLog::GetSingleton()->Print("ProcessInWater: originalResult=%d, underWater=%d, g_wasUnderWater=%d",
-                                              originalResult, underWater, g_wasUnderWater);
             g_wasUnderWater = originalResult;
             g_lastWaterHeight = a_waterHeight;
             return originalResult;

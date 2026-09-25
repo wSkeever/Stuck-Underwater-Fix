@@ -5,7 +5,7 @@
   "port-version": 0,
   "description": "A smol SKSE plugin that fixes underwater visuals and sounds being stuck.",
   "homepage": "https://www.skyrimng.com",
-  "license": "Apache-2.0",
+  "license": "GPL-3.0-or-later",
   "features": {
     "plugin": {
       "description": "Build the SKSE plugin.",

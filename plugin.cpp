@@ -7,6 +7,7 @@ using namespace REL;
 namespace StuckUnderwater {
     bool g_wasUnderWater = false;
     float g_lastProcessTime = FLT_MIN;
+    float g_lastWaterHeight = FLT_MIN;
 
     struct detail {
         static void UpdateUnderwaterVariables(TESWaterSystem* a_manager, bool a_underWater, float a_waterHeight) {
@@ -16,7 +17,7 @@ namespace StuckUnderwater {
         }
     };
 
-    static bool IsCameraUnderwater(PlayerCharacter* a_actor, float a_waterHeight, bool a_originalResult) {
+    static bool IsCameraUnderwater(float a_waterHeight, bool a_originalResult) {
         if (!a_originalResult) {
             return a_originalResult;
         }
@@ -45,11 +46,14 @@ namespace StuckUnderwater {
                 g_wasUnderWater = false;
                 return false;
             }
-            const bool underWater = IsCameraUnderwater(a_actor, a_waterHeight, originalResult);
+            const bool underWater = IsCameraUnderwater(a_waterHeight, originalResult);
             if (!underWater && g_wasUnderWater) {
                 detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), underWater, a_waterHeight);
             }
+            ConsoleLog::GetSingleton()->Print("ProcessInWater: originalResult=%d, underWater=%d, g_wasUnderWater=%d",
+                                              originalResult, underWater, g_wasUnderWater);
             g_wasUnderWater = originalResult;
+            g_lastWaterHeight = a_waterHeight;
             return originalResult;
         }
         static inline Relocation<decltype(thunk)> func;
@@ -57,12 +61,6 @@ namespace StuckUnderwater {
     };
 
     static void PostWaterFix() {
-        if (!g_wasUnderWater) {
-            return;
-        }
-        if (g_lastProcessTime == FLT_MIN) {
-            return;
-        }
         auto calendar = Calendar::GetSingleton();
         if (!calendar) {
             return;
@@ -72,8 +70,14 @@ namespace StuckUnderwater {
         if ((processTime - g_lastProcessTime) * 86400.0f / timescale < 1.0f) {
             return;
         }
-        detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
         g_lastProcessTime = processTime;
+        if (!g_wasUnderWater) {
+            return;
+        }
+        if (IsCameraUnderwater(g_lastWaterHeight, true)) {
+            return;
+        }
+        detail::UpdateUnderwaterVariables(TESWaterSystem::GetSingleton(), false, FLT_MIN);
         g_wasUnderWater = false;
         SKSE::log::info("Clearing uncleared underwater effects after exiting water.");
     }

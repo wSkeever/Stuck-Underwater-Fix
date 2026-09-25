@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         StuckUnderwater
-        VERSION 0.1.2
+        VERSION 0.2.1
         DESCRIPTION "A smol SKSE plugin that fixes underwater visuals and sounds being stuck."
         LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
